@@ -1,18 +1,16 @@
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
-import config, csv, json
 from datetime import datetime
+import config, csv
 
 
 
 ap = PlainTextAuthProvider(username=config.username, password=config.password)
 node_ips = config.hosts
 cluster = Cluster(node_ips, protocol_version=4, auth_provider=ap, port=config.port)
-session = cluster.connect('part_2_testing')
+session = cluster.connect('part_3')
 
-# https://medium.com/@hannah15198/convert-csv-to-json-with-python-b8899c722f6d
-csvFilePath = 'freeway_loopdata_OneHour.csv'
-#jsonFilePath = 'freeway_loopdata_OneHour.json'
+csvFilePath = 'freeway_loopdata.csv'
 data = []
 
 with open(csvFilePath) as csvFile:
@@ -20,7 +18,6 @@ with open(csvFilePath) as csvFile:
     for rows in csvReader:
         data.append(rows)
 
-#with open(jsonFilePath, 'w') as jsonFile:
 for d in data:
     for key in list(d.keys()):
         if d[key] == "":
@@ -28,10 +25,6 @@ for d in data:
 
     stObject = datetime.strptime(d['starttime'], '%m/%d/%Y %H:%M:%S')
     d['starttime'] = datetime.strftime(stObject, '%Y-%m-%d %H:%M:%S')
-    session.execute('INSERT INTO freeway_loopdata_OneHour JSON \' ' + json.dumps(d) + '\'');
-
-    #jsonFile.write(json.dumps(data, indent = 0))
-
+    session.execute('INSERT INTO freeway_loopdata JSON \' ' + json.dumps(d) + '\'');
 
 cluster.shutdown()
-
