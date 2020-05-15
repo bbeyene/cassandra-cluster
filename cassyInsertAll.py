@@ -10,13 +10,25 @@ cluster = Cluster(node_ips, protocol_version=4, auth_provider=ap, port=config.po
 session = cluster.connect('part_2_testing_3')
 
 
+highwaysFilePath = 'highways.csv'
 stationsFilePath = 'freeway_stations.csv'
 detectorsFilePath = 'freeway_detectors.csv'
 loopdataFilePath = 'freeway_loopdata_OneHour.csv'
 
+highways = []
 stations = []
 detectors = []
-loopdata = []
+loopdataByDetector = []
+
+with open(highwaysFilePath) as csvFile:
+    csvReader = csv.DictReader(csvFile)
+    for rows in csvReader:
+        highways.append(rows)
+
+for h in highways:
+    for key in list(s.keys()):
+        if ( (key == "shortdirection")
+            del h[key]
 
 with open(stationsFilePath) as csvFile:
     csvReader = csv.DictReader(csvFile)
@@ -38,20 +50,28 @@ for d in detectors:
         if ( (key == "locationtext") or (key == "detectorclass") or (key == "lanenumber") ):
             del d[key]
 
+
+#pre-joins
+
+
+
+
+
+
 with open(loopdataFilePath) as csvFile:
     csvReader = csv.DictReader(csvFile)
     for rows in csvReader:
-        data.append(rows)
+        loopdataByDetector.append(rows)
 
-for l in loopdata:
+for l in loopdataByDetector:
     for key in list(l.keys()):
         if ( (key == "status") or (key == "dqflags") or (l[key] == "") ):
             del d[key]
-    l['stationid'] = indexedDetectors[l['detectorid'].stationid]
-    l['milepost'] = indexedDetectors[l['detectorid']]
-
     stObject = datetime.strptime(d['starttime'], '%m/%d/%Y %H:%M:%S')
     d['starttime'] = datetime.strftime(stObject, '%Y-%m-%d %H:%M:%S')
-    session.execute('INSERT INTO freeway_loopdata_OneHour JSON \' ' + json.dumps(d) + '\'');
+    session.execute('INSERT INTO loopdata_by_detector JSON \' ' + json.dumps(d) + '\'');
+
+for d in detectorsByLoacationtext:
+    session.execute('INSERT INTO detectors_by_locationtext JSON \' ' + json.dumps(d) + '\'');
 
 cluster.shutdown()

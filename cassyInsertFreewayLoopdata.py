@@ -8,7 +8,7 @@ import config, csv, json
 ap = PlainTextAuthProvider(username=config.username, password=config.password)
 node_ips = config.hosts
 cluster = Cluster(node_ips, protocol_version=4, auth_provider=ap, port=config.port)
-session = cluster.connect('part_2_testing_3')
+session = cluster.connect('part_2_testing_12')
 
 csvFilePath = 'freeway_loopdata_OneHour.csv'
 data = []
@@ -25,6 +25,8 @@ for d in data:
 
     stObject = datetime.strptime(d['starttime'], '%m/%d/%Y %H:%M:%S')
     d['starttime'] = datetime.strftime(stObject, '%Y-%m-%d %H:%M:%S')
-    session.execute('INSERT INTO freeway_loopdata_OneHour JSON \' ' + json.dumps(d) + '\'');
+    session.execute('INSERT INTO loopdata_by_detector JSON \' ' + json.dumps(d) + '\'');
+
+
 
 cluster.shutdown()
