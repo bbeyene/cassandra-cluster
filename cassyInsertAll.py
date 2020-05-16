@@ -15,48 +15,37 @@ stationsFilePath = 'freeway_stations.csv'
 detectorsFilePath = 'freeway_detectors.csv'
 loopdataFilePath = 'freeway_loopdata_OneHour.csv'
 
-highways = []
-stations = []
-detectors = []
+highways = {} 
+stations = {} 
+detectors = {}
 loopdataByDetector = []
 
 with open(highwaysFilePath) as csvFile:
     csvReader = csv.DictReader(csvFile)
     for rows in csvReader:
-        highways.append(rows)
-
-for h in highways:
-    for key in list(s.keys()):
-        if ( (key == "shortdirection")
-            del h[key]
+        highwayid = rows['highwayid']
+        highways[highwayid] = rows
 
 with open(stationsFilePath) as csvFile:
     csvReader = csv.DictReader(csvFile)
     for rows in csvReader:
-        stations.append(rows)
-
-for s in stations:
-    for key in list(s.keys()):
-        if ( (key == "stationclass") or (key == "numberlanes") or (key == "lation") ):
-            del s[key]
+        stationid = rows['stationid']
+        stations[stationid] = rows
 
 with open(detectorsFilePath) as csvFile:
     csvReader = csv.DictReader(csvFile)
     for rows in csvReader:
-        detectors.append(rows)
+        detectorid = rows['detectorid']
+        detectors[detectorid] = rows;
 
-for d in detectors:
-    for key in list(d.keys()):
-        if ( (key == "locationtext") or (key == "detectorclass") or (key == "lanenumber") ):
-            del d[key]
+#this wont work - must do join as planned before
+for key, value in detectors.items():
+        print(key + ' ' +  value['locationtext'] + ' ' + stations[value['stationid']])
 
+#print(stations['1045']['upstream'])
+"""
 
-#pre-joins
-
-
-
-
-
+session.execute('INSERT INTO detectors_by_highway (');
 
 with open(loopdataFilePath) as csvFile:
     csvReader = csv.DictReader(csvFile)
@@ -65,13 +54,20 @@ with open(loopdataFilePath) as csvFile:
 
 for l in loopdataByDetector:
     for key in list(l.keys()):
-        if ( (key == "status") or (key == "dqflags") or (l[key] == "") ):
+        #if ( (key == "occupancy") or (key == "status") or (key == "dqflags") or (l[key] == "") ):
+            del d[key]
+        del d['occupancy']
+        del d['dqflags']
+        del d['status']
+        if (l[key] == ""):
             del d[key]
     stObject = datetime.strptime(d['starttime'], '%m/%d/%Y %H:%M:%S')
     d['starttime'] = datetime.strftime(stObject, '%Y-%m-%d %H:%M:%S')
+    # OR.... just insert speed, volume, starttime and detectorid directly duh
     session.execute('INSERT INTO loopdata_by_detector JSON \' ' + json.dumps(d) + '\'');
 
 for d in detectorsByLoacationtext:
     session.execute('INSERT INTO detectors_by_locationtext JSON \' ' + json.dumps(d) + '\'');
 
 cluster.shutdown()
+"""
