@@ -7,7 +7,7 @@ import config, csv, json
 ap = PlainTextAuthProvider(username=config.username, password=config.password)
 node_ips = config.hosts
 cluster = Cluster(node_ips, protocol_version=4, auth_provider=ap, port=config.port)
-session = cluster.connect('part_3')
+session = cluster.connect('part_3_testing_3')
 
 
 loopdataFilePath = 'freeway_loopdata_oneday.csv'
@@ -20,13 +20,15 @@ with open(loopdataFilePath) as csvFile:
         loopdataByDetector.append(rows)
 
 for l in loopdataByDetector:
-    l.pop('occupancy')
     l.pop('status')
     l.pop('dqflags')
-    if l['speed'] == "":
-        l.pop('speed')
-    if l['volume'] == "":
-        l.pop('volume')
+    if l['speed'] == '0':
+        l.pop(key)
+    for key in list(l.keys()):
+        if l[key] == '':
+            l.pop(key)
+    #if l['speed'] == "":
+        #l['speed'] = 0
 
     stObject = datetime.strptime(l['starttime'], '%m/%d/%Y %H:%M:%S')
     l['starttime'] = datetime.strftime(stObject, '%Y-%m-%d %H:%M:%S')
