@@ -22,13 +22,11 @@ with open(loopdataFilePath) as csvFile:
 for l in loopdataByDetector:
     l.pop('status')
     l.pop('dqflags')
-    if l['speed'] == '0':
-        l.pop(key)
-    for key in list(l.keys()):
-        if l[key] == '':
-            l.pop(key)
-    #if l['speed'] == "":
-        #l['speed'] = 0
+    l.pop('occupancy')
+    if l['speed'] == '0' or l['speed'] == '':
+        l.pop('speed')
+    if l['volume'] == '':
+        l.pop('volume')
 
     stObject = datetime.strptime(l['starttime'], '%m/%d/%Y %H:%M:%S')
     l['starttime'] = datetime.strftime(stObject, '%Y-%m-%d %H:%M:%S')
