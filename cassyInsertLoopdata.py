@@ -7,36 +7,29 @@ import config, csv, json
 ap = PlainTextAuthProvider(username=config.username, password=config.password)
 node_ips = config.hosts
 cluster = Cluster(node_ips, protocol_version=4, auth_provider=ap, port=config.port)
-session = cluster.connect('part_3_testing_4')
+session = cluster.connect('part_3_version_0')
 
-
-loopdataFilePath = 'freeway_loopdata_OneHour.csv'
-
-loopdataByDetector = []
+loopdataFilePath = 'freeway_loopdata.csv'
 
 with open(loopdataFilePath) as csvFile:
-    csvReader = csv.DictReader(csvFile)
+    csvReader = csv.reader(csvFile)
+    header = next(csvReader)
 
-    insertNone = "INSERT INTO loopdata_by_detector (detectorid, starttime) VALUES (?, ?)"
-    insertVolume = "INSERT INTO loopdata_by_detector (detectorid, starttime, volume) VALUES (?, ?, ?)"
-    insertSpeed = "INSERT INTO loopdata_by_detector (detectorid, starttime, speed) VALUES (?, ?, ?)"
-    insertBoth = "INSERT INTO loopdata_by_detector (detectorid, starttime, speed, volume) VALUES (?, ?, ?, ?)"
-    preparedNone = session.prepare(insertNone)
-    preparedVolume = session.prepare(insertVolume)
-    preparedSpeed = session.prepare(insertSpeed)
-    preparedBoth = session.prepare(insertBoth)
+    preparedNone = session.prepare("INSERT INTO loopdata_by_detector (detectorid, starttime) VALUES (?, ?)")
+    preparedVolume = session.prepare("INSERT INTO loopdata_by_detector (detectorid, starttime, volume) VALUES (?, ?, ?)")
+    preparedSpeed = session.prepare("INSERT INTO loopdata_by_detector (detectorid, starttime, speed) VALUES (?, ?, ?)")
+    preparedBoth = session.prepare("INSERT INTO loopdata_by_detector (detectorid, starttime, speed, volume) VALUES (?, ?, ?, ?)")
 
     for rows in csvReader:
-        dtObject = datetime.strptime(rows['starttime'], '%m/%d/%Y %H:%M:%S')
-        dtString = datetime.strftime(dtObject, '%Y-%m-%d %H:%M:%S')
-        if rows['speed'] == '0' or rows['speed'] == '':
-            if rows['volume'] == '':
-                session.execute(preparedNone, (int(rows['detectorid']), dtObject))
+        #dtObject = datetime.strptime(rows[1], '%m/%d/%Y %H:%M:%S')
+        if rows[3] == '0' or rows[3] == '':
+            if rows[2] == '':
+                session.execute(preparedNone, (int(rows[0]), rows[1]))
             else: 
-                session.execute(preparedVolume, (int(rows['detectorid']), dtObject, int(rows['volume'])))
-        elif rows['volume'] == '':
-            session.execute(preparedSpeed, (int(rows['detectorid']), dtObject, int(rows['speed'])))
+                session.execute(preparedVolume, (int(rows[0]), rows[1], int(rows[2])))
+        elif rows[2] == '':
+            session.execute(preparedSpeed, (int(rows[0]), rows[1], int(rows[3])))
         else:
-            session.execute(preparedBoth, (int(rows['detectorid']), dtObject, int(rows['speed']), int(rows['volume'])))
+            session.execute(preparedBoth, (int(rows[0]), rows[1], int(rows[3]), int(rows[2])))
 
 cluster.shutdown()
