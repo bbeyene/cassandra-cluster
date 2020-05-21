@@ -6,7 +6,7 @@ import config, csv
 ap = PlainTextAuthProvider(username=config.username, password=config.password)
 node_ips = config.hosts
 cluster = Cluster(node_ips, protocol_version=4, auth_provider=ap, port=config.port)
-session = cluster.connect('part_3')
+session = cluster.connect('part_3_version_0')
 
 
 highwaysFilePath = 'highways.csv'
