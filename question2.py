@@ -10,24 +10,29 @@ node_ips = config.hosts
 cluster = Cluster(node_ips, protocol_version=4, auth_provider=ap, port=config.port)
 session = cluster.connect('part_3_version_0')
 
-location = 'Foster NB'
-detectorids = []
-results = session.execute("SELECT detectorid FROM detectors_by_highway WHERE locationtext = %s", ["Foster NB"])
-for row in results:
-    detectorids.append(row.detectorid)
+results = session.execute(
+        """
+        SELECT detectorid 
+        FROM detectors_by_highway 
+        WHERE locationtext = %s
+        """, ["Foster NB"])
 
 temp = ''
-for d in detectorids:
-    temp += str(d)
-    temp += ', '
-
+for row in results:
+    temp += str(row.detectorid) + ', '
 idList = temp[0:-2]
 
-query = "SELECT SUM(volume) FROM loopdata_by_detector WHERE detectorid IN ( " + idList + " ) AND starttime >= \'2011-09-21\' AND starttime < \'2011-09-23\' "
-result = session.execute(query)
+query = """
+        SELECT SUM(volume) as total
+        FROM loopdata_by_detector 
+        WHERE detectorid 
+        IN ( """ + idList + """ ) 
+        AND starttime >= \'2011-09-21\' 
+        AND starttime < \'2011-09-23\' 
+        """
 
-for row in result:
-    print(row.system_sum_volume)
+result = session.execute(query)
+print(result[0].total)
 
 cluster.shutdown()
 
