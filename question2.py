@@ -16,18 +16,18 @@ results = session.execute("SELECT detectorid FROM detectors_by_highway WHERE loc
 for row in results:
     detectorids.append(row.detectorid)
 
+temp = ''
+for d in detectorids:
+    temp += str(d)
+    temp += ', '
 
-result = session.execute(
-        """
-        SELECT SUM(volume)
-        FROM loopdata_by_detector 
-        WHERE detectorid IN (%s)
-        AND starttime >= %s
-        AND starttime < %s
-        """, (detectorids[0], '2011-09-21', '2011-09-23'))
+idList = temp[0:-2]
+
+query = "SELECT SUM(volume) FROM loopdata_by_detector WHERE detectorid IN ( " + idList + " ) AND starttime >= \'2011-09-21\' AND starttime < \'2011-09-23\' "
+result = session.execute(query)
 
 for row in result:
-    print(row)
+    print(row.system_sum_volume)
 
 cluster.shutdown()
 
