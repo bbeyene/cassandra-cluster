@@ -28,7 +28,7 @@ query = """
         WHERE detectorid 
         IN ( """ + idList + """ ) 
         AND starttime >= \'2011-09-21\' 
-        AND starttime < \'2011-09-23\' 
+        AND starttime < \'2011-09-22\' 
         """
 
 result = session.execute(query)
