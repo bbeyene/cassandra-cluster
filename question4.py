@@ -1,6 +1,5 @@
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
-from cassandra.query import SimpleStatement
 import config
 
 """ Find the average travel time for 7-9AM and 4-6PM on Sept 22, 2011 for station Foster NB in seconds """
@@ -48,7 +47,7 @@ eveningAvg = eveningResult[0][0]
 speedAvg = (morningAvg + eveningAvg) / 2
 
 travelTime = (float(length) / speedAvg) * 3600
-print(round(travelTime))
+print("\nAvg travel time for 7-9AM and 4-6pm on Sept 22, 2011 for Foster NB: " + str(round(travelTime)) + " seconds\n")
 
 cluster.shutdown()
 
