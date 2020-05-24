@@ -1,6 +1,5 @@
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
-from cassandra.query import SimpleStatement
 from cassandra.query import dict_factory
 import config
 
@@ -63,7 +62,6 @@ for er in eveningResults:
 
 """ for each triplet: (length / ((morning avg + evening avg) / 2)) * 60 """
 
-
 travelTimes = {}
 for key, value in morningAverages.items():
     tempAvg = (value + eveningAverages[key]) / 2
@@ -71,7 +69,6 @@ for key, value in morningAverages.items():
         travelTimes[key] = float(lengths[key]) / tempAvg
     else:
         travelTimes[key] = 0
-
 
 stationTravelTimes = {}
 for key, value in locations.items():
@@ -84,6 +81,6 @@ total = 0;
 for key, value in stationTravelTimes.items():
     total += value
 
-print(round(total * 60, 1))
+print("\nAvg travel time for 7-9AM and 4-6PM on Sept 22, 2011 for I-205 NB: " + str(round(total * 60, 1)) + " minutes\n")
 
 cluster.shutdown()
