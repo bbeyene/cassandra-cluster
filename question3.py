@@ -1,8 +1,6 @@
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
-from cassandra.query import SimpleStatement
-from datetime import timedelta
-from datetime import datetime
+from datetime import timedelta, datetime
 import config
 
 """ Find the travel time for station Foster NB for 5-minute intervals for Sept 22, 2011 """
@@ -45,33 +43,22 @@ prepared = session.prepare(
                 AND starttime >= ? 
                 AND starttime < ?
             """ )
-print(intervals)
-results = {}
-length = len(intervals) - 1
+
+travelTimes = {}
+intervalLength = len(intervals) - 1
 i = 0
-while i < length:
+while i < intervalLength:
     row = session.execute(prepared, (intervals[i], intervals[i+1]))
-    results[datetime.strftime(row[0].starttime, '%Y-%m-%d %H:%M:%S')] = row[0].average
-    #key = datetime.strftime(row[0].starttime, '%Y-%m-%d %H:%M:%S')
-    #value = row[0].average
-    #results[key] = value
-    print(row[0])
-    """ use longer timeout? """
+    if isinstance(row[0].starttime, datetime):
+        st = row[0].starttime
+        st = st - timedelta(minutes=st.minute % 5, seconds=st.second)
+        key = datetime.strftime(st, '%Y-%m-%d %H:%M:%S')
+        value = row[0].average
+        travelTimes[key] = round((float(length)/value) * 3600, 1)
     i += 1
 
-print(results)
-
-
-"""
-morningResult = session.execute(queryMorning)
-eveningResult = session.execute(queryEvening)
-
-morningAvg = morningResult[0][0]
-eveningAvg = eveningResult[0][0]
-speedAvg = (morningAvg + eveningAvg) / 2
-
-travelTime = (float(length) / speedAvg) * 3600
-print(round(travelTime))
+travelTimesOrdered = sorted(travelTimes.items(), key=lambda x: x[0])
+for tt in travelTimesOrdered:
+    print(tt)
 
 cluster.shutdown()
-"""
