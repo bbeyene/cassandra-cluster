@@ -1,6 +1,5 @@
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
-from cassandra.query import SimpleStatement
 import config
 
 """ Find the total volume for the station Foster NB for Sept 21, 2011. """
@@ -32,7 +31,7 @@ query = """
         """
 
 result = session.execute(query)
-print(result[0].total)
+print("\nTotal volume for Foster NB for Sept 21, 2011: " + str(result[0].total) + "\n")
 
 cluster.shutdown()
 
