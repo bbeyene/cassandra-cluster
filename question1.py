@@ -15,9 +15,9 @@ statement = SimpleStatement(query, fetch_size=5000)
 
 count = 0
 for row in session.execute(statement):
-    if isinstance(row.speed, int):
+    if isinstance(row.speed, int) and row.speed > 100:
         count+=1
 
-print(count)
+print("\nNumber of speeds > 100: " + str(count) + "\n")
 cluster.shutdown()
 
